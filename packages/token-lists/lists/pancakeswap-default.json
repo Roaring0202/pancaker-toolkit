@@ -1,12 +1,12 @@
 {
   "name": "PancakeSwap Default",
-  "timestamp": "2021-08-20T10:38:20.113Z",
+  "timestamp": "2022-03-01T08:37:04.410Z",
   "version": {
     "major": 2,
-    "minor": 15,
-    "patch": 3
+    "minor": 16,
+    "patch": 5
   },
-  "logoURI": "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/logo.png",
+  "logoURI": "https://pancakeswap.finance/logo.png",
   "keywords": [
     "pancakeswap",
     "default"
@@ -77,14 +77,6 @@
       "logoURI": "https://tokens.pancakeswap.finance/images/0xcF6BB5389c92Bdda8a3747Ddb454cB7a64626C63.png"
     },
     {
-      "name": "SafeMoon",
-      "symbol": "SAFEMOON",
-      "address": "0x8076C74C5e3F5852037F31Ff0093Eeb8c8ADd8D3",
-      "chainId": 56,
-      "decimals": 9,
-      "logoURI": "https://tokens.pancakeswap.finance/images/0x8076C74C5e3F5852037F31Ff0093Eeb8c8ADd8D3.png"
-    },
-    {
       "name": "Alpaca",
       "symbol": "ALPACA",
       "address": "0x8F0528cE5eF7B51152A59745bEfDD91D97091d2F",
@@ -123,14 +115,6 @@
       "chainId": 56,
       "decimals": 18,
       "logoURI": "https://tokens.pancakeswap.finance/images/0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d.png"
-    },
-    {
-      "name": "Dopple Finance",
-      "symbol": "DOP",
-      "address": "0x844FA82f1E54824655470970F7004Dd90546bB28",
-      "chainId": 56,
-      "decimals": 18,
-      "logoURI": "https://tokens.pancakeswap.finance/images/0x844FA82f1E54824655470970F7004Dd90546bB28.png"
     }
   ]
 }

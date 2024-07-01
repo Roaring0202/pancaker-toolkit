@@ -16,14 +16,6 @@
     "logoURI": "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d/logo.png"
   },
   {
-    "name": "SafeMoon",
-    "symbol": "SAFEMOON",
-    "address": "0x8076C74C5e3F5852037F31Ff0093Eeb8c8ADd8D3",
-    "chainId": 56,
-    "decimals": 9,
-    "logoURI": "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x8076C74C5e3F5852037F31Ff0093Eeb8c8ADd8D3/logo.png"
-  },
-  {
     "name": "AlpacaToken",
     "symbol": "ALPACA",
     "address": "0x8F0528cE5eF7B51152A59745bEfDD91D97091d2F",
@@ -62,14 +54,6 @@
     "chainId": 56,
     "decimals": 18,
     "logoURI": "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x3EE2200Efb3400fAbB9AacF31297cBdD1d435D47/logo.png"
-  },
-  {
-    "name": "Dopple Token",
-    "symbol": "DOP",
-    "address": "0x844FA82f1E54824655470970F7004Dd90546bB28",
-    "chainId": 56,
-    "decimals": 18,
-    "logoURI": "https://assets.trustwalletapp.com/blockchains/smartchain/assets/0x844FA82f1E54824655470970F7004Dd90546bB28/logo.png"
   },
   {
     "name": "Wrapped UST Token",

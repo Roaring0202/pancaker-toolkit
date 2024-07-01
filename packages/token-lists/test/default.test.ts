@@ -8,13 +8,22 @@ import currentPancakeswapDefaultList from "../lists/pancakeswap-default.json";
 import currentPancakeswapExtendedtList from "../lists/pancakeswap-extended.json";
 import currentPancakeswapTop15List from "../lists/pancakeswap-top-15.json";
 import currentPancakeswapTop100tList from "../lists/pancakeswap-top-100.json";
+import currentCoingeckoList from "../lists/coingecko.json";
+import currentCmcList from "../lists/cmc.json";
+import currentPancakeswapMiniList from "../lists/pancakeswap-mini.json";
+import currentPancakeswapMiniExtendedList from "../lists/pancakeswap-mini-extended.json";
 import { buildList, VersionBump } from "../src/buildList";
+import getTokenChainData from "../src/utils/getTokensChainData";
 
 const currentLists = {
   "pancakeswap-default": currentPancakeswapDefaultList,
   "pancakeswap-extended": currentPancakeswapExtendedtList,
   "pancakeswap-top-100": currentPancakeswapTop100tList,
   "pancakeswap-top-15": currentPancakeswapTop15List,
+  coingecko: currentCoingeckoList,
+  cmc: currentCmcList,
+  "pancakeswap-mini": currentPancakeswapMiniList,
+  "pancakeswap-mini-extended": currentPancakeswapMiniExtendedList,
 };
 
 const ajv = new Ajv({ allErrors: true, format: "full" });
@@ -103,88 +112,109 @@ expect.extend({
   },
 });
 
-describe.each([["pancakeswap-default"], ["pancakeswap-extended"], ["pancakeswap-top-100"], ["pancakeswap-top-15"]])(
-  "buildList %s",
-  (listName) => {
-    const defaultTokenList = buildList(listName);
+describe.each([
+  ["pancakeswap-default"],
+  ["pancakeswap-extended"],
+  ["pancakeswap-top-100"],
+  ["pancakeswap-top-15"],
+  ["coingecko", { skipLogo: true }],
+  ["cmc", { skipLogo: true }],
+  ["pancakeswap-mini"],
+  ["pancakeswap-mini-extended"],
+])("buildList %s", (listName, opt = undefined) => {
+  const defaultTokenList = buildList(listName);
 
-    it("validates", () => {
-      expect(defaultTokenList).toBeValidTokenList();
-    });
+  it("validates", () => {
+    expect(defaultTokenList).toBeValidTokenList();
+  });
 
-    it("contains no duplicate addresses", () => {
-      const map = {};
-      for (const token of defaultTokenList.tokens) {
-        const key = `${token.chainId}-${token.address.toLowerCase()}`;
-        expect(map[key]).toBeDeclaredOnce("address", token.address.toLowerCase(), token.chainId);
-        map[key] = true;
-      }
-    });
+  it("contains no duplicate addresses", () => {
+    const map = {};
+    for (const token of defaultTokenList.tokens) {
+      const key = `${token.chainId}-${token.address.toLowerCase()}`;
+      expect(map[key]).toBeDeclaredOnce("address", token.address.toLowerCase(), token.chainId);
+      map[key] = true;
+    }
+  });
 
-    // Commented out since we now have duplicate symbols ("ONE") on exchange
-    // doesn't seem to affect any functionality at the moment though
-    // it("contains no duplicate symbols", () => {
-    //   const map = {};
-    //   for (const token of defaultTokenList.tokens) {
-    //     const key = `${token.chainId}-${token.symbol.toLowerCase()}`;
-    //     expect(map[key]).toBeDeclaredOnce("symbol", token.symbol.toLowerCase(), token.chainId);
-    //     map[key] = true;
-    //   }
-    // });
+  // Commented out since we now have duplicate symbols ("ONE") on exchange
+  // doesn't seem to affect any functionality at the moment though
+  // it("contains no duplicate symbols", () => {
+  //   const map = {};
+  //   for (const token of defaultTokenList.tokens) {
+  //     const key = `${token.chainId}-${token.symbol.toLowerCase()}`;
+  //     expect(map[key]).toBeDeclaredOnce("symbol", token.symbol.toLowerCase(), token.chainId);
+  //     map[key] = true;
+  //   }
+  // });
 
-    it("contains no duplicate names", () => {
-      const map = {};
-      for (const token of defaultTokenList.tokens) {
-        const key = `${token.chainId}-${token.name.toLowerCase()}`;
-        expect(map[key]).toBeDeclaredOnce("name", token.name.toLowerCase(), token.chainId);
-        map[key] = true;
-      }
-    });
+  it("contains no duplicate names", () => {
+    const map = {};
+    for (const token of defaultTokenList.tokens) {
+      const key = `${token.chainId}-${token.name}`;
+      expect(map[key]).toBeDeclaredOnce("name", token.name, token.chainId);
+      map[key] = true;
+    }
+  });
 
-    it("all addresses are valid and checksummed", () => {
-      for (const token of defaultTokenList.tokens) {
-        expect(token.address).toBe(getAddress(token.address));
-      }
-    });
+  it("all addresses are valid and checksummed", () => {
+    for (const token of defaultTokenList.tokens) {
+      expect(token.address).toBe(getAddress(token.address));
+    }
+  });
 
-    it("all logos addresses are valid and checksummed", async () => {
-      for (const logo of logoFiles) {
-        const sanitizedLogo = logo.split(".")[0];
-        expect(sanitizedLogo).toBe(getAddress(sanitizedLogo));
-      }
-    });
+  it("all logos addresses are valid and checksummed", async () => {
+    for (const logo of logoFiles) {
+      const sanitizedLogo = logo.split(".")[0];
+      expect(sanitizedLogo).toBe(getAddress(sanitizedLogo));
+    }
+  });
 
-    it("all tokens have correct logos", () => {
+  it("all tokens have correct logos", () => {
+    if (!opt || !opt.skipLogo) {
       for (const token of defaultTokenList.tokens) {
         expect(token).toBeValidLogo();
       }
-    });
+    }
+  });
 
-    it("version gets patch bump if no versionBump sepcified", () => {
-      expect(defaultTokenList.version.major).toBe(currentLists[listName].version.major);
-      expect(defaultTokenList.version.minor).toBe(currentLists[listName].version.minor);
-      expect(defaultTokenList.version.patch).toBe(currentLists[listName].version.patch + 1);
-    });
+  it("all tokens have correct decimals", async () => {
+    const addressArray = defaultTokenList.tokens.map((token) => token.address);
+    const tokensChainData = await getTokenChainData("test", addressArray);
+    for (const token of defaultTokenList.tokens) {
+      const realDecimals = tokensChainData.find(
+        (t) => t.address.toLowerCase() === token.address.toLowerCase()
+      )?.decimals;
+      expect(token.decimals).toBeGreaterThanOrEqual(0);
+      expect(token.decimals).toBeLessThanOrEqual(18);
+      expect(token.decimals).toEqual(realDecimals);
+    }
+  });
 
-    it("version gets patch bump if patch versionBump is sepcified", () => {
-      const defaultTokenListPatchBump = buildList(listName, VersionBump.patch);
-      expect(defaultTokenListPatchBump.version.major).toBe(currentLists[listName].version.major);
-      expect(defaultTokenListPatchBump.version.minor).toBe(currentLists[listName].version.minor);
-      expect(defaultTokenListPatchBump.version.patch).toBe(currentLists[listName].version.patch + 1);
-    });
+  it("version gets patch bump if no versionBump sepcified", () => {
+    expect(defaultTokenList.version.major).toBe(currentLists[listName].version.major);
+    expect(defaultTokenList.version.minor).toBe(currentLists[listName].version.minor);
+    expect(defaultTokenList.version.patch).toBe(currentLists[listName].version.patch + 1);
+  });
 
-    it("version gets minor bump if minor versionBump is sepcified", () => {
-      const defaultTokenListMinorBump = buildList(listName, VersionBump.minor);
-      expect(defaultTokenListMinorBump.version.major).toBe(currentLists[listName].version.major);
-      expect(defaultTokenListMinorBump.version.minor).toBe(currentLists[listName].version.minor + 1);
-      expect(defaultTokenListMinorBump.version.patch).toBe(currentLists[listName].version.patch);
-    });
+  it("version gets patch bump if patch versionBump is sepcified", () => {
+    const defaultTokenListPatchBump = buildList(listName, VersionBump.patch);
+    expect(defaultTokenListPatchBump.version.major).toBe(currentLists[listName].version.major);
+    expect(defaultTokenListPatchBump.version.minor).toBe(currentLists[listName].version.minor);
+    expect(defaultTokenListPatchBump.version.patch).toBe(currentLists[listName].version.patch + 1);
+  });
 
-    it("version gets minor bump if major versionBump is sepcified", () => {
-      const defaultTokenListMajorBump = buildList(listName, VersionBump.major);
-      expect(defaultTokenListMajorBump.version.major).toBe(currentLists[listName].version.major + 1);
-      expect(defaultTokenListMajorBump.version.minor).toBe(currentLists[listName].version.minor);
-      expect(defaultTokenListMajorBump.version.patch).toBe(currentLists[listName].version.patch);
-    });
-  }
-);
+  it("version gets minor bump if minor versionBump is sepcified", () => {
+    const defaultTokenListMinorBump = buildList(listName, VersionBump.minor);
+    expect(defaultTokenListMinorBump.version.major).toBe(currentLists[listName].version.major);
+    expect(defaultTokenListMinorBump.version.minor).toBe(currentLists[listName].version.minor + 1);
+    expect(defaultTokenListMinorBump.version.patch).toBe(currentLists[listName].version.patch);
+  });
+
+  it("version gets minor bump if major versionBump is sepcified", () => {
+    const defaultTokenListMajorBump = buildList(listName, VersionBump.major);
+    expect(defaultTokenListMajorBump.version.major).toBe(currentLists[listName].version.major + 1);
+    expect(defaultTokenListMajorBump.version.minor).toBe(currentLists[listName].version.minor);
+    expect(defaultTokenListMajorBump.version.patch).toBe(currentLists[listName].version.patch);
+  });
+});
