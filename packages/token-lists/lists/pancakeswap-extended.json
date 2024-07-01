@@ -1,10 +1,5 @@
 {
   "name": "PancakeSwap Extended",
-  "timestamp": "2022-04-14T09:32:18.354Z",
-  "version": {
-    "major": 2,
-    "minor": 16,
-    "patch": 87
   },
   "logoURI": "https://pancakeswap.finance/logo.png",
   "keywords": [
